@@ -1,0 +1,1533 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TechStore</title>
+
+  <!-- Шрифты (если есть интернет) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1022;
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.62);
+      --muted2: rgba(255,255,255,.45);
+
+      --stroke: rgba(255,255,255,.14);
+      --stroke2: rgba(255,255,255,.10);
+      --shadow: 0 30px 90px rgba(0,0,0,.55);
+      --shadow2: 0 18px 50px rgba(0,0,0,.42);
+
+      --r: 22px;
+      --a:#7C5CFF;
+      --b:#6AA6FF;
+      --c:#2DE59F;
+      --d:#FF5C7A;
+
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --ease2: cubic-bezier(.16,1,.3,1);
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      background: radial-gradient(1200px 700px at 15% 10%, rgba(124,92,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 85% 15%, rgba(106,166,255,.22), transparent 60%),
+                  radial-gradient(900px 700px at 35% 95%, rgba(45,229,159,.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1) 45%, var(--bg0));
+      font-family: "Space Grotesk", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow-x:hidden;
+    }
+    a{ color:inherit; text-decoration:none; }
+
+    /* ===== Liquid blobs ===== */
+    .blobs{ position: fixed; inset: -20vh -20vw; z-index:-2; pointer-events:none; filter: blur(30px); opacity:.85; }
+    .blob{
+      position:absolute;
+      width: 520px; height: 520px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 42%),
+                  radial-gradient(circle at 70% 70%, rgba(255,255,255,.20), transparent 45%),
+                  linear-gradient(135deg, rgba(124,92,255,.85), rgba(106,166,255,.55));
+      mix-blend-mode: screen;
+      transform: translate3d(0,0,0);
+      animation: floaty 14s var(--ease) infinite;
+    }
+    .blob:nth-child(1){ left: 8%; top: 10%; animation-duration: 15s; }
+    .blob:nth-child(2){
+      left: 68%; top: 6%;
+      width: 560px; height: 560px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), transparent 45%),
+                  linear-gradient(135deg, rgba(106,166,255,.85), rgba(255,92,122,.45));
+      animation-duration: 18s;
+    }
+    .blob:nth-child(3){
+      left: 22%; top: 70%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle at 25% 30%, rgba(255,255,255,.22), transparent 50%),
+                  linear-gradient(135deg, rgba(45,229,159,.85), rgba(124,92,255,.35));
+      animation-duration: 20s;
+    }
+    @keyframes floaty{
+      0%   { transform: translate(0,0) scale(1) rotate(0deg); }
+      35%  { transform: translate(60px, -30px) scale(1.05) rotate(8deg); }
+      70%  { transform: translate(-40px, 40px) scale(.98) rotate(-6deg); }
+      100% { transform: translate(0,0) scale(1) rotate(0deg); }
+    }
+
+    /* ===== Base UI ===== */
+    .wrap{ max-width: 1180px; margin:0 auto; padding: 18px; }
+    .row{ display:flex; align-items:center; gap:12px; }
+    .grow{ flex:1; }
+    .hideSm{ display:block; }
+    @media (max-width: 820px){ .hideSm{ display:none; } }
+
+    .btn{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+      user-select:none;
+      font-family: inherit;
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.08); }
+    .btn:active{ transform: translateY(0px) scale(.99); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.35), rgba(106,166,255,.22));
+      border-color: rgba(124,92,255,.45);
+    }
+    .btn.ghost{
+      background: rgba(0,0,0,.10);
+      border-color: rgba(255,255,255,.14);
+    }
+    .btn.danger{
+      background: rgba(255,92,122,.10);
+      border-color: rgba(255,92,122,.35);
+    }
+
+    .pill{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.15);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--r);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+
+    /* ===== Topbar ===== */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(9,12,22,.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .topbarInner{
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display:flex;
+      align-items:center;
+      gap: 12px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px; }
+    .logo{
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 45%),
+                  linear-gradient(135deg, rgba(124,92,255,.95), rgba(106,166,255,.70));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 14px 40px rgba(124,92,255,.25);
+      position: relative;
+      overflow:hidden;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      transform: rotate(20deg);
+      animation: shine 3.8s var(--ease) infinite;
+      opacity:.7;
+    }
+    @keyframes shine{
+      0%{ transform: translateX(-40%) rotate(20deg); }
+      55%{ transform: translateX(40%) rotate(20deg); }
+      100%{ transform: translateX(40%) rotate(20deg); }
+    }
+    .search{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      min-width: 240px;
+      flex: 1;
+    }
+    .search input{
+      width:100%;
+      background:transparent;
+      border:0;
+      outline:0;
+      color:var(--text);
+      font-size:14px;
+      font-family:inherit;
+    }
+
+    /* ===== Hero ===== */
+    .hero{
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: calc(var(--r) + 10px);
+      border: 1px solid rgba(255,255,255,.14);
+      background: radial-gradient(900px 220px at 12% 5%, rgba(124,92,255,.18), transparent 60%),
+                  radial-gradient(800px 260px at 92% 20%, rgba(106,166,255,.15), transparent 60%),
+                  rgba(255,255,255,.04);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(650px 220px at 30% 0%, rgba(255,255,255,.09), transparent 70%);
+      pointer-events:none;
+    }
+    .heroTop{
+      display:flex;
+      gap:16px;
+      align-items:flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .heroTitle{
+      margin: 0;
+      font-size: clamp(26px, 3.5vw, 44px);
+      line-height: 1.02;
+      letter-spacing: -.6px;
+    }
+    .slogan{
+      margin-top: 10px;
+      font-family: "Sora", "Space Grotesk", system-ui, sans-serif;
+      font-weight: 700;
+      font-size: clamp(16px, 2vw, 22px);
+      color: rgba(255,255,255,.90);
+      letter-spacing: .2px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+    .slogan span{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      box-shadow: 0 18px 40px rgba(0,0,0,.25);
+      transform: translateZ(0);
+    }
+    .slogan i{
+      width:10px; height:10px; border-radius:999px; display:inline-block;
+      background: linear-gradient(135deg, var(--b), var(--a));
+      box-shadow: 0 0 0 6px rgba(124,92,255,.10);
+    }
+
+    /* ===== Catalog layout ===== */
+    .layout{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap: 14px;
+      margin-top: 14px;
+      padding-bottom: 26px;
+    }
+    @media (max-width: 980px){ .layout{ grid-template-columns: 1fr; } }
+
+    .panel{ padding: 14px; }
+    .panel h3{
+      margin: 8px 0 10px;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+    .chip{
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      cursor:pointer;
+      transition: transform .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+    }
+    .chip:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.22); }
+    .chip.active{
+      background: linear-gradient(135deg, rgba(124,92,255,.28), rgba(106,166,255,.18));
+      border-color: rgba(124,92,255,.45);
+    }
+    .field{
+      display:flex; gap:10px; align-items:center;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+    }
+    .field label{ font-size: 12px; color: var(--muted); min-width: 86px; }
+    input[type="range"]{ width: 100%; accent-color: var(--b); }
+    select{
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .hint{
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+
+    .main{ padding: 14px; }
+    .mainTop{
+      display:flex; align-items:center; justify-content: space-between; gap:10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .count{ color: var(--muted); font-size: 13px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 12px;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 560px){ .grid{ grid-template-columns: 1fr; } }
+
+    /* ===== Product card ===== */
+    .card{
+      position: relative;
+      padding: 12px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 22px 60px rgba(0,0,0,.42);
+      overflow:hidden;
+      transform: translateZ(0);
+      transition: transform .22s var(--ease), border-color .22s var(--ease), box-shadow .22s var(--ease);
+      min-height: 250px;
+      display:flex;
+      flex-direction: column;
+      gap:10px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: popIn .55s var(--ease) forwards;
+    }
+    @keyframes popIn{ to { opacity: 1; transform: translateY(0); } }
+    .card:hover{ transform: translateY(-4px); border-color: rgba(255,255,255,.22); box-shadow: 0 28px 80px rgba(0,0,0,.55); }
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(500px 160px at 20% 0%, rgba(255,255,255,.08), transparent 65%);
+      pointer-events:none;
+    }
+    .thumb{
+      height: 132px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background:
+        radial-gradient(120px 80px at 30% 30%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(135deg, rgba(124,92,255,.30), rgba(106,166,255,.22));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position: relative;
+      overflow:hidden;
+    }
+    .thumb .shine{
+      position:absolute; inset:-40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+      transform: rotate(20deg);
+      animation: shine2 3.6s var(--ease) infinite;
+      opacity: .55;
+    }
+    @keyframes shine2{
+      0%{ transform: translateX(-35%) rotate(20deg); }
+      55%{ transform: translateX(35%) rotate(20deg); }
+      100%{ transform: translateX(35%) rotate(20deg); }
+    }
+    .icon{
+      width: 64px; height: 64px;
+      border-radius: 20px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.12);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 30px;
+    }
+    .badges{ display:flex; gap:8px; flex-wrap:wrap; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+    }
+    .dot{ width: 9px; height: 9px; border-radius: 999px; }
+    .dot.ok{ background: var(--c); box-shadow: 0 0 0 6px rgba(45,229,159,.12); }
+    .dot.no{ background: var(--d); box-shadow: 0 0 0 6px rgba(255,92,122,.12); }
+    .name{ font-weight: 800; letter-spacing: -.2px; line-height: 1.18; font-size: 15px; }
+    .desc{ color: var(--muted); font-size: 12.5px; line-height: 1.35; margin-top: -2px; }
+    .cardBottom{ display:flex; align-items:center; justify-content: space-between; gap:10px; margin-top:auto; }
+    .price{ font-weight: 900; font-size: 15px; letter-spacing: .2px; }
+    .mini{ font-size: 12px; color: var(--muted2); }
+
+    /* ===== Page transitions ===== */
+    .view{
+      will-change: transform, opacity, filter;
+      transform-origin: top center;
+    }
+    .view.enter{
+      opacity:0;
+      transform: translateY(10px) scale(.995);
+      filter: blur(6px);
+    }
+    .view.enterActive{
+      opacity:1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      transition: transform .38s var(--ease2), opacity .38s var(--ease2), filter .38s var(--ease2);
+    }
+    .view.exit{
+      opacity:1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+    .view.exitActive{
+      opacity:0;
+      transform: translateY(12px) scale(.99);
+      filter: blur(6px);
+      transition: transform .28s var(--ease2), opacity .28s var(--ease2), filter .28s var(--ease2);
+    }
+
+    /* ===== Shared element (перелёт карточки) ===== */
+    .fly{
+      position: fixed;
+      z-index: 999;
+      pointer-events:none;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 28px 90px rgba(0,0,0,.60);
+      overflow:hidden;
+      transform-origin: top left;
+    }
+
+    /* ===== Product page ===== */
+    .productHeader{
+      display:flex; align-items:center; justify-content: space-between; gap:10px;
+      flex-wrap:wrap;
+      margin-top: 16px;
+      margin-bottom: 12px;
+    }
+    .crumbs{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .crumbs a{ color: rgba(255,255,255,.84); }
+    .pLayout{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+      padding-bottom: 26px;
+    }
+    @media (max-width: 980px){ .pLayout{ grid-template-columns: 1fr; } }
+
+    .bigMedia{
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(360px 240px at 28% 28%, rgba(255,255,255,.20), transparent 60%),
+        radial-gradient(360px 240px at 70% 75%, rgba(255,255,255,.12), transparent 62%),
+        linear-gradient(135deg, rgba(124,92,255,.30), rgba(106,166,255,.18));
+      min-height: 420px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .bigMedia .shine{
+      position:absolute; inset:-40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      transform: rotate(20deg);
+      animation: shine2 3.6s var(--ease) infinite;
+      opacity:.55;
+    }
+    .bigIcon{
+      width: 110px; height: 110px;
+      border-radius: 32px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.12);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 50px;
+    }
+
+    .infoBox{ padding: 14px; }
+    .pName{
+      margin: 0;
+      font-size: clamp(22px, 2.6vw, 30px);
+      letter-spacing: -.5px;
+      line-height: 1.05;
+      font-weight: 900;
+    }
+    .pDesc{
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+    .specRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+    .specPill{
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.14);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+    }
+
+    .buyBox{
+      margin-top: 12px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      padding: 14px;
+      display:grid;
+      gap:12px;
+    }
+    .buyTop{ display:flex; align-items:flex-end; justify-content: space-between; gap:10px; flex-wrap:wrap; }
+    .pPrice{ font-weight: 900; font-size: 22px; letter-spacing: .2px; }
+    .stockLine{ display:flex; align-items:center; gap:8px; color: rgba(255,255,255,.86); font-size: 13px; }
+    .divider{ height:1px; background: rgba(255,255,255,.10); margin: 4px 0; }
+    .buyActions{ display:flex; gap:10px; flex-wrap:wrap; }
+    .note{
+      color: var(--muted2);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .sectionTitle{
+      margin: 0 0 10px;
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .relatedGrid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width: 980px){ .relatedGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 560px){ .relatedGrid{ grid-template-columns: 1fr; } }
+    .relatedWrap{ padding:14px; margin-top:14px; }
+
+    /* ===== Drawer cart ===== */
+    .backdrop{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      z-index: 60;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .drawer{
+      position: fixed;
+      right: 16px;
+      top: 16px;
+      bottom: 16px;
+      width: min(430px, calc(100vw - 32px));
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      transform: translateX(120%);
+      transition: transform .28s var(--ease);
+      overflow:hidden;
+      display:flex;
+      flex-direction: column;
+      z-index: 70;
+    }
+    .backdrop.show{ display:block; }
+    .drawer.show{ transform: translateX(0); }
+    .drawerHead{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex; align-items:center; justify-content: space-between; gap:10px;
+    }
+    .drawerHead b{ font-size: 14px; letter-spacing: .2px; }
+    .drawerBody{ padding: 12px 14px; overflow:auto; display:grid; gap:10px; }
+    .line{
+      padding: 10px 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      display:flex; align-items:center; justify-content: space-between; gap:10px;
+    }
+    .line .meta{ display:flex; flex-direction: column; gap:3px; }
+    .line .meta b{ font-size: 13px; }
+    .line .meta span{ color: var(--muted); font-size: 12px; }
+    .qty{ display:flex; align-items:center; gap:8px; }
+    .qty .btn{ padding: 8px 10px; border-radius: 14px; }
+    .sum{ font-weight: 900; font-size: 12.5px; white-space: nowrap; color: rgba(255,255,255,.90); }
+    .drawerFoot{
+      padding: 12px 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      display:flex; align-items:center; justify-content: space-between; gap:10px;
+      flex-wrap: wrap;
+    }
+    .total{ font-weight: 900; }
+    .empty{
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px dashed rgba(255,255,255,.16);
+      background: rgba(0,0,0,.12);
+      color: var(--muted);
+      text-align:center;
+    }
+
+    /* ===== Toast ===== */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10,12,22,.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: var(--shadow2);
+      display:none;
+      z-index: 100;
+      max-width: min(720px, calc(100vw - 24px));
+      color: rgba(255,255,255,.90);
+      font-size: 13px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .blob{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="blobs" aria-hidden="true">
+    <div class="blob"></div>
+    <div class="blob"></div>
+    <div class="blob"></div>
+  </div>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbarInner">
+      <a class="brand" href="#catalog" id="homeLink">
+        <div class="logo"></div>
+        <div>
+          <div style="font-size:14px;">TechStore</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px;">Liquid Glass Electronics</div>
+        </div>
+      </a>
+
+      <div class="pill hideSm" id="topPill">Доставка 1–2 дня • Гарантия • Самовывоз</div>
+
+      <div class="grow"></div>
+
+      <div class="search" title="Поиск по товарам" id="searchBox">
+        <span style="opacity:.75">🔎</span>
+        <input id="q" placeholder="Искать: iPhone, RTX, SSD..." />
+      </div>
+
+      <button class="btn primary" id="openCart">🛒 Корзина (<span id="cartCount">0</span>)</button>
+    </div>
+  </header>
+
+  <!-- Main mount -->
+  <main class="wrap" id="app"></main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Drawer cart -->
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="drawer" id="drawer" aria-label="Корзина">
+    <div class="drawerHead">
+      <b>Корзина</b>
+      <div class="row" style="gap:8px;">
+        <button class="btn" id="clearCart">Очистить</button>
+        <button class="btn danger" id="closeCart">✕</button>
+      </div>
+    </div>
+
+    <div class="drawerBody" id="cartBody"></div>
+
+    <div class="drawerFoot">
+      <div class="total">Итого: <span id="total">0</span> €</div>
+      <button class="btn primary" id="checkout">Оформить (демо)</button>
+    </div>
+  </aside>
+
+<script>
+  // ===== Данные =====
+  const PRODUCTS = [
+    { id:"ip15",  icon:"📱", name:"Apple iPhone 15 128GB", cat:"iPhone", price:899, popular:98, stock:true,
+      desc:"OLED, A16, камера 48 МП, USB-C. Очень быстрый и “чистый” по ощущениям.",
+      specs:["OLED","48MP","A16","USB-C","Face ID"]
+    },
+    { id:"ip15p", icon:"📱", name:"Apple iPhone 15 Pro 256GB", cat:"iPhone", price:1299, popular:93, stock:true,
+      desc:"Титан, A17 Pro, ProMotion 120Hz, продвинутая камера и топовый чип.",
+      specs:["Titanium","A17 Pro","120Hz","3× Zoom","ProRAW"]
+    },
+    { id:"ip14",  icon:"📱", name:"Apple iPhone 14 128GB", cat:"iPhone", price:699, popular:78, stock:true,
+      desc:"Отличный баланс цены и качества: стабильный, быстрый и актуальный.",
+      specs:["OLED","A15","5G","Face ID","iOS"]
+    },
+    { id:"se",    icon:"📱", name:"iPhone SE (2022) 64GB", cat:"iPhone", price:429, popular:70, stock:false,
+      desc:"Компактный формат + мощный чип. Но в демо сейчас “нет в наличии”.",
+      specs:["A15","Touch ID","Compact","5G","iOS"]
+    },
+
+    { id:"gpu1", icon:"🧩", name:"NVIDIA GeForce RTX 4070 SUPER", cat:"Видеокарты", price:679, popular:92, stock:true,
+      desc:"Гейминг 1440p, DLSS, отличная эффективность — выглядит как “2026 ready”.",
+      specs:["DLSS","1440p","Ray Tracing","12GB","PCIe"]
+    },
+    { id:"gpu2", icon:"🧩", name:"AMD Radeon RX 7800 XT", cat:"Видеокарты", price:549, popular:84, stock:true,
+      desc:"Сильная карта по цене. Отлично для высоких настроек в 1440p.",
+      specs:["16GB VRAM","1440p","FSR","RDNA","PCIe"]
+    },
+
+    { id:"cpu1", icon:"⚡", name:"AMD Ryzen 7 7800X3D", cat:"Процессоры", price:389, popular:96, stock:true,
+      desc:"Один из лучших игровых CPU: низкие задержки и высокий FPS.",
+      specs:["8C/16T","3D V-Cache","AM5","DDR5","PCIe 5.0"]
+    },
+    { id:"cpu2", icon:"⚡", name:"Intel Core i5-13600K", cat:"Процессоры", price:319, popular:88, stock:true,
+      desc:"Мощный универсал: игры + монтаж + многозадачность.",
+      specs:["P+E cores","LGA1700","DDR4/DDR5","Unlocked","High boost"]
+    },
+
+    { id:"ssd1", icon:"💾", name:"NVMe SSD 1TB PCIe 4.0", cat:"SSD", price:89, popular:90, stock:true,
+      desc:"Быстрые загрузки, лёгкий апгрейд: “поставил и забыл”.",
+      specs:["1TB","PCIe 4.0","NVMe","High IOPS","M.2"]
+    },
+    { id:"ssd2", icon:"💾", name:"NVMe SSD 2TB PCIe 4.0", cat:"SSD", price:149, popular:85, stock:true,
+      desc:"Много места под игры, проекты, видео. И всё летает.",
+      specs:["2TB","PCIe 4.0","NVMe","M.2","Cache"]
+    },
+
+    { id:"ram1", icon:"🧠", name:"DDR5 32GB (2×16) 6000MHz", cat:"ОЗУ", price:119, popular:86, stock:true,
+      desc:"Золотой стандарт для игр и учебных проектов: запас на будущее.",
+      specs:["32GB","DDR5","6000MHz","EXPO/XMP","Dual-Channel"]
+    },
+    { id:"mb1", icon:"🧷", name:"Материнская плата B650 (AM5)", cat:"Материнские платы", price:179, popular:83, stock:true,
+      desc:"Надёжная база под Ryzen 7000: апгрейдится и держит нагрузку.",
+      specs:["AM5","B650","M.2","USB-C","Wi-Fi (опц.)"]
+    },
+    { id:"psu1", icon:"🔋", name:"Блок питания 750W 80+ Gold", cat:"Блоки питания", price:109, popular:81, stock:true,
+      desc:"Тихий и стабильный: чтобы система работала без сюрпризов.",
+      specs:["750W","80+ Gold","Quiet","Protections","ATX"]
+    },
+  ];
+
+  const money = (n) => new Intl.NumberFormat("de-DE").format(n);
+  const CATEGORIES = ["Все", ...Array.from(new Set(PRODUCTS.map(p => p.cat)))];
+
+  // ===== state =====
+  const state = {
+    q: "",
+    cat: "Все",
+    priceCap: 2200,
+    sort: "popular",
+    cart: new Map(),
+    lastCardRect: null,
+    lastCardHTML: null
+  };
+
+  // ===== refs =====
+  const elApp = document.getElementById("app");
+  const elQ = document.getElementById("q");
+  const elSearchBox = document.getElementById("searchBox");
+  const elTopPill = document.getElementById("topPill");
+
+  const elToast = document.getElementById("toast");
+
+  // drawer
+  const elOpenCart = document.getElementById("openCart");
+  const elCloseCart = document.getElementById("closeCart");
+  const elClearCart = document.getElementById("clearCart");
+  const elBackdrop = document.getElementById("backdrop");
+  const elDrawer = document.getElementById("drawer");
+  const elCartBody = document.getElementById("cartBody");
+  const elCartCount = document.getElementById("cartCount");
+  const elTotal = document.getElementById("total");
+  const elCheckout = document.getElementById("checkout");
+
+  // ===== toast =====
+  const toast = (msg) => {
+    elToast.textContent = msg;
+    elToast.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> elToast.style.display = "none", 1600);
+  };
+
+  // ===== storage =====
+  function saveCart(){
+    const obj = {};
+    for(const [id, qty] of state.cart.entries()) obj[id] = qty;
+    localStorage.setItem("techstore_cart_spa", JSON.stringify(obj));
+  }
+  function loadCart(){
+    try{
+      const raw = localStorage.getItem("techstore_cart_spa");
+      if(!raw) return;
+      const obj = JSON.parse(raw);
+      state.cart = new Map(Object.entries(obj).map(([k,v])=>[k, Number(v)]));
+    }catch(e){}
+  }
+
+  // ===== derived =====
+  function filtered(){
+    const q = state.q.trim().toLowerCase();
+    return PRODUCTS
+      .filter(p => state.cat === "Все" ? true : p.cat === state.cat)
+      .filter(p => p.price <= state.priceCap)
+      .filter(p => !q ? true : (p.name + " " + p.cat + " " + p.desc + " " + (p.specs||[]).join(" ")).toLowerCase().includes(q));
+  }
+  function sorted(list){
+    const a = [...list];
+    switch(state.sort){
+      case "priceAsc": return a.sort((x,y)=> x.price - y.price);
+      case "priceDesc": return a.sort((x,y)=> y.price - x.price);
+      case "nameAsc": return a.sort((x,y)=> x.name.localeCompare(y.name, "ru"));
+      default: return a.sort((x,y)=> y.popular - x.popular);
+    }
+  }
+  function cartCount(){
+    let c = 0;
+    for(const qty of state.cart.values()) c += qty;
+    return c;
+  }
+  function cartTotal(){
+    let t = 0;
+    for(const [id, qty] of state.cart.entries()){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(p) t += p.price * qty;
+    }
+    return t;
+  }
+
+  // ===== drawer =====
+  function renderCartButton(){
+    elCartCount.textContent = String(cartCount());
+    elTotal.textContent = money(cartTotal());
+  }
+  function renderCart(){
+    const items = [...state.cart.entries()]
+      .map(([id, qty]) => ({ p: PRODUCTS.find(x=>x.id===id), qty }))
+      .filter(x => x.p);
+
+    elCartBody.innerHTML = "";
+    if(items.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = "Корзина пустая. Добавь что-нибудь из каталога 😉";
+      elCartBody.appendChild(empty);
+      renderCartButton();
+      return;
+    }
+
+    items.forEach(({p, qty})=>{
+      const row = document.createElement("div");
+      row.className = "line";
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = `<b>${p.icon || "📦"} ${p.name}</b><span>${p.cat} • ${money(p.price)} € / шт</span>`;
+
+      const controls = document.createElement("div");
+      controls.className = "row";
+      controls.style.gap = "10px";
+
+      const qtyBox = document.createElement("div");
+      qtyBox.className = "qty";
+
+      const minus = document.createElement("button");
+      minus.className = "btn";
+      minus.textContent = "−";
+      minus.onclick = () => {
+        const cur = state.cart.get(p.id) || 0;
+        if(cur <= 1) state.cart.delete(p.id);
+        else state.cart.set(p.id, cur - 1);
+        saveCart();
+        renderCart();
+      };
+
+      const q = document.createElement("div");
+      q.className = "sum";
+      q.textContent = qty + "×";
+
+      const plus = document.createElement("button");
+      plus.className = "btn";
+      plus.textContent = "+";
+      plus.onclick = () => {
+        state.cart.set(p.id, (state.cart.get(p.id)||0) + 1);
+        saveCart();
+        renderCart();
+      };
+
+      const sum = document.createElement("div");
+      sum.className = "sum";
+      sum.textContent = money(p.price * qty) + " €";
+
+      const del = document.createElement("button");
+      del.className = "btn danger";
+      del.textContent = "✕";
+      del.title = "Удалить";
+      del.onclick = () => {
+        state.cart.delete(p.id);
+        saveCart();
+        renderCart();
+      };
+
+      qtyBox.appendChild(minus);
+      qtyBox.appendChild(q);
+      qtyBox.appendChild(plus);
+
+      controls.appendChild(qtyBox);
+      controls.appendChild(sum);
+      controls.appendChild(del);
+
+      row.appendChild(meta);
+      row.appendChild(controls);
+
+      elCartBody.appendChild(row);
+    });
+
+    renderCartButton();
+  }
+  function openDrawer(){
+    elBackdrop.classList.add("show");
+    elDrawer.classList.add("show");
+    renderCart();
+  }
+  function closeDrawer(){
+    elBackdrop.classList.remove("show");
+    elDrawer.classList.remove("show");
+  }
+
+  // ===== routing =====
+  function parseRoute(){
+    const h = (location.hash || "#catalog").replace("#", "");
+    if(h.startsWith("product=")) return { name:"product", id: h.split("product=")[1] };
+    return { name:"catalog" };
+  }
+
+  // ===== view transitions helpers =====
+  function mountView(node){
+    node.classList.add("view", "enter");
+    elApp.innerHTML = "";
+    elApp.appendChild(node);
+    // start transition next frame
+    requestAnimationFrame(()=>{
+      node.classList.add("enterActive");
+      node.classList.remove("enter");
+      // cleanup later
+      setTimeout(()=> node.classList.remove("enterActive"), 420);
+    });
+  }
+
+  function animateCardFlightTo(targetRect){
+    if(!state.lastCardRect || !state.lastCardHTML || !targetRect) return;
+
+    const fly = document.createElement("div");
+    fly.className = "fly";
+    fly.innerHTML = state.lastCardHTML;
+
+    const r0 = state.lastCardRect;
+    fly.style.left = r0.left + "px";
+    fly.style.top = r0.top + "px";
+    fly.style.width = r0.width + "px";
+    fly.style.height = r0.height + "px";
+
+    document.body.appendChild(fly);
+
+    // Animate
+    requestAnimationFrame(()=>{
+      const dx = targetRect.left - r0.left;
+      const dy = targetRect.top - r0.top;
+      const sx = targetRect.width / r0.width;
+      const sy = targetRect.height / r0.height;
+
+      fly.style.transition = "transform .52s var(--ease2), opacity .52s var(--ease2), border-radius .52s var(--ease2)";
+      fly.style.transform = `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+      fly.style.borderRadius = "28px";
+      fly.style.opacity = "0.20";
+    });
+
+    setTimeout(()=> fly.remove(), 560);
+  }
+
+  function colorForCat(cat){
+    const map = {
+      "iPhone": ["rgba(124,92,255,.30)", "rgba(106,166,255,.18)"],
+      "Видеокарты": ["rgba(106,166,255,.30)", "rgba(255,92,122,.16)"],
+      "Процессоры": ["rgba(45,229,159,.24)", "rgba(106,166,255,.16)"],
+      "SSD": ["rgba(255,255,255,.14)", "rgba(106,166,255,.16)"],
+      "ОЗУ": ["rgba(124,92,255,.24)", "rgba(45,229,159,.12)"],
+      "Материнские платы": ["rgba(255,92,122,.18)", "rgba(124,92,255,.16)"],
+      "Блоки питания": ["rgba(45,229,159,.16)", "rgba(255,255,255,.10)"],
+    };
+    return map[cat] || ["rgba(124,92,255,.22)", "rgba(106,166,255,.16)"];
+  }
+
+  // ===== Catalog view =====
+  function catalogView(){
+    // topbar: показываем поиск
+    elSearchBox.style.display = "";
+    elTopPill.textContent = "Доставка 1–2 дня • Гарантия • Самовывоз";
+
+    const root = document.createElement("div");
+
+    // Hero
+    const hero = document.createElement("section");
+    hero.className = "hero";
+    hero.innerHTML = `
+      <div class="heroTop">
+        <div>
+          <h1 class="heroTitle">TechStore</h1>
+          <div class="slogan">
+            <span><i></i> Скорость.</span>
+            <span><i style="background:linear-gradient(135deg,var(--c),var(--b)); box-shadow:0 0 0 6px rgba(45,229,159,.10)"></i> Качество.</span>
+            <span><i style="background:linear-gradient(135deg,var(--d),var(--a)); box-shadow:0 0 0 6px rgba(255,92,122,.10)"></i> Гарантии.</span>
+          </div>
+          <div style="margin-top:10px;color:var(--muted);font-size:13px;max-width:720px;line-height:1.45;">
+            Каталог с карточками, плавными переходами и страницей товара. Для урока — выглядит как “настоящий бренд”.
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="pill"><b id="kpiShown" style="color:rgba(255,255,255,.92)">0</b> товаров</div>
+          <div class="pill">SPA-переходы</div>
+          <div class="pill">Drawer-корзина</div>
+        </div>
+      </div>
+    `;
+
+    // Layout
+    const layout = document.createElement("section");
+    layout.className = "layout";
+    layout.innerHTML = `
+      <aside class="glass panel">
+        <h3>Категории</h3>
+        <div class="chips" id="catChips"></div>
+
+        <h3 style="margin-top:14px;">Цена</h3>
+        <div class="field">
+          <label>до</label>
+          <input id="priceCap" type="range" min="50" max="2200" step="50" value="${state.priceCap}" />
+          <div class="pill" style="min-width:76px; text-align:center;"><span id="priceCapLabel">${state.priceCap}</span> €</div>
+        </div>
+
+        <h3 style="margin-top:14px;">Сортировка</h3>
+        <div class="field">
+          <label>как</label>
+          <select id="sort">
+            <option value="popular">По популярности</option>
+            <option value="priceAsc">Цена: по возрастанию</option>
+            <option value="priceDesc">Цена: по убыванию</option>
+            <option value="nameAsc">Название: A→Я</option>
+          </select>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn ghost" id="reset">Сброс</button>
+          <button class="btn" id="demoFill">💡 Показать топ</button>
+        </div>
+
+        <div class="hint">
+          Переход на страницу товара: клик по карточке. Назад — кнопка “←” или логотип.
+        </div>
+      </aside>
+
+      <section class="glass main">
+        <div class="mainTop">
+          <div>
+            <div style="font-weight:900; letter-spacing:-.2px;">Каталог</div>
+            <div class="count"><span id="countLabel">0</span> найдено</div>
+          </div>
+          <div class="row" style="gap:10px;">
+            <span class="pill hideSm">Совет: открой товар → добавь в корзину → покажи училке 😄</span>
+          </div>
+        </div>
+
+        <div class="grid" id="products"></div>
+      </section>
+    `;
+
+    root.appendChild(hero);
+    root.appendChild(layout);
+
+    // After mount: wire up controls
+    mountView(root);
+
+    const elKpiShown = document.getElementById("kpiShown");
+    const elCat = document.getElementById("catChips");
+    const elPriceCap = document.getElementById("priceCap");
+    const elPriceCapLabel = document.getElementById("priceCapLabel");
+    const elSort = document.getElementById("sort");
+    const elReset = document.getElementById("reset");
+    const elDemoFill = document.getElementById("demoFill");
+    const elProducts = document.getElementById("products");
+    const elCountLabel = document.getElementById("countLabel");
+
+    // sync select
+    elSort.value = state.sort;
+
+    function renderCategories(){
+      elCat.innerHTML = "";
+      CATEGORIES.forEach(cat=>{
+        const b = document.createElement("button");
+        b.className = "chip" + (state.cat===cat ? " active" : "");
+        b.textContent = cat;
+        b.onclick = () => { state.cat = cat; renderAll(); };
+        elCat.appendChild(b);
+      });
+    }
+
+    function cardDelay(i){ return Math.min(160, i * 20); }
+
+    function renderProducts(){
+      const list = sorted(filtered());
+      elCountLabel.textContent = list.length;
+      elKpiShown.textContent = list.length;
+      elProducts.innerHTML = "";
+
+      if(list.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Ничего не найдено. Попробуй другой запрос или сбрось фильтры.";
+        elProducts.appendChild(empty);
+        return;
+      }
+
+      list.forEach((p, idx)=>{
+        const card = document.createElement("article");
+        card.className = "card";
+        card.style.animationDelay = cardDelay(idx) + "ms";
+        card.dataset.pid = p.id;
+
+        const thumb = document.createElement("div");
+        thumb.className = "thumb";
+        const shine = document.createElement("div");
+        shine.className = "shine";
+        const icon = document.createElement("div");
+        icon.className = "icon";
+        icon.textContent = p.icon || "📦";
+        thumb.appendChild(shine);
+        thumb.appendChild(icon);
+
+        const badges = document.createElement("div");
+        badges.className = "badges";
+        const b1 = document.createElement("span");
+        b1.className = "badge";
+        b1.innerHTML = `<span class="dot ${p.stock ? "ok" : "no"}"></span>${p.cat}`;
+        const b2 = document.createElement("span");
+        b2.className = "badge";
+        b2.innerHTML = `⭐ ${p.popular}%`;
+        badges.appendChild(b1); badges.appendChild(b2);
+
+        const name = document.createElement("div");
+        name.className = "name";
+        name.textContent = p.name;
+
+        const desc = document.createElement("div");
+        desc.className = "desc";
+        desc.textContent = p.desc;
+
+        const bottom = document.createElement("div");
+        bottom.className = "cardBottom";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<div class="price">${money(p.price)} €</div>
+                          <div class="mini">${p.stock ? "В наличии" : "Нет в наличии"}</div>`;
+
+        const right = document.createElement("div");
+        right.className = "row";
+        right.style.gap = "8px";
+
+        const view = document.createElement("button");
+        view.className = "btn";
+        view.textContent = "Смотреть";
+        view.onclick = (e) => {
+          e.stopPropagation();
+          // capture card rect + html for flight
+          const r = card.getBoundingClientRect();
+          state.lastCardRect = r;
+          state.lastCardHTML = card.innerHTML;
+          location.hash = "product=" + p.id;
+        };
+
+        const add = document.createElement("button");
+        add.className = "btn primary";
+        add.textContent = "В корзину";
+        add.disabled = !p.stock;
+        add.style.opacity = p.stock ? "1" : ".55";
+        add.style.cursor = p.stock ? "pointer" : "not-allowed";
+        add.onclick = (e) => {
+          e.stopPropagation();
+          if(!p.stock) return;
+          state.cart.set(p.id, (state.cart.get(p.id)||0) + 1);
+          saveCart();
+          renderCartButton();
+          toast("Добавлено: " + p.name);
+        };
+
+        right.appendChild(view);
+        right.appendChild(add);
+
+        bottom.appendChild(left);
+        bottom.appendChild(right);
+
+        card.appendChild(thumb);
+        card.appendChild(badges);
+        card.appendChild(name);
+        card.appendChild(desc);
+        card.appendChild(bottom);
+
+        card.onclick = () => {
+          const r = card.getBoundingClientRect();
+          state.lastCardRect = r;
+          state.lastCardHTML = card.innerHTML;
+          location.hash = "product=" + p.id;
+        };
+
+        elProducts.appendChild(card);
+      });
+    }
+
+    function renderAll(){
+      renderCategories();
+      elPriceCapLabel.textContent = String(state.priceCap);
+      renderProducts();
+      renderCartButton();
+    }
+
+    // events
+    elPriceCap.oninput = (e)=>{ state.priceCap = Number(e.target.value); renderAll(); };
+    elSort.onchange = (e)=>{ state.sort = e.target.value; renderAll(); };
+
+    elReset.onclick = () => {
+      state.q = ""; elQ.value = "";
+      state.cat = "Все";
+      state.priceCap = 2200; elPriceCap.value = "2200";
+      state.sort = "popular"; elSort.value = "popular";
+      renderAll();
+      toast("Фильтры сброшены");
+    };
+
+    elDemoFill.onclick = () => {
+      state.q = ""; elQ.value = "";
+      state.cat = "Все";
+      state.sort = "popular"; elSort.value = "popular";
+      state.priceCap = 900; elPriceCap.value = String(state.priceCap);
+      renderAll();
+      toast("Показал топ до 900€");
+    };
+
+    renderAll();
+  }
+
+  // ===== Product page view =====
+  function productView(id){
+    const p = PRODUCTS.find(x=>x.id===id);
+    if(!p){
+      location.hash = "catalog";
+      return;
+    }
+
+    // topbar: поиск прячем (как на нормальной карточке товара)
+    elSearchBox.style.display = "none";
+    elTopPill.textContent = "Страница товара • TechStore";
+
+    const [c1,c2] = colorForCat(p.cat);
+
+    const root = document.createElement("div");
+
+    // header row
+    const header = document.createElement("div");
+    header.className = "productHeader";
+    header.innerHTML = `
+      <div class="crumbs">
+        <button class="btn ghost" id="backBtn">← Назад</button>
+        <span>•</span>
+        <a href="#catalog">Каталог</a>
+        <span>›</span>
+        <span>${p.cat}</span>
+      </div>
+      <div class="row" style="gap:10px;">
+        <span class="pill hideSm">#${p.id}</span>
+        <button class="btn primary" id="buyQuick">🛒 В корзину</button>
+      </div>
+    `;
+
+    // main layout
+    const layout = document.createElement("section");
+    layout.className = "pLayout";
+
+    layout.innerHTML = `
+      <div class="bigMedia" id="bigMedia" style="
+        background:
+          radial-gradient(360px 240px at 28% 28%, rgba(255,255,255,.20), transparent 60%),
+          radial-gradient(360px 240px at 70% 75%, rgba(255,255,255,.12), transparent 62%),
+          linear-gradient(135deg, ${c1}, ${c2});
+      ">
+        <div class="shine"></div>
+        <div class="bigIcon">${p.icon || "📦"}</div>
+      </div>
+
+      <aside class="glass infoBox">
+        <h1 class="pName">${p.name}</h1>
+        <div class="row" style="margin-top:10px; gap:10px; flex-wrap:wrap;">
+          <span class="badge"><span class="dot ${p.stock ? "ok":"no"}"></span>${p.cat}</span>
+          <span class="badge">⭐ Популярность: ${p.popular}%</span>
+          <span class="badge">${p.stock ? "В наличии" : "Нет в наличии"}</span>
+        </div>
+        <p class="pDesc">${p.desc}</p>
+
+        <div class="specRow" id="specRow"></div>
+
+        <div class="buyBox">
+          <div class="buyTop">
+            <div>
+              <div style="color:var(--muted); font-size:12px;">Цена</div>
+              <div class="pPrice">${money(p.price)} €</div>
+            </div>
+            <div class="stockLine">
+              <span class="dot ${p.stock ? "ok":"no"}"></span>
+              <span>${p.stock ? "Готово к отправке сегодня" : "Ожидается поставка"}</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="buyActions">
+            <button class="btn primary" id="addBtn" ${p.stock ? "" : "disabled"} style="${p.stock ? "" : "opacity:.55;cursor:not-allowed;"}">Добавить в корзину</button>
+            <button class="btn" id="openCart2">Открыть корзину</button>
+            <button class="btn ghost" id="copyLink">Скопировать ссылку</button>
+          </div>
+          <div class="note">
+            Демо-магазин: оплата и доставка — как “интерфейс”, но корзина реально работает в браузере.
+          </div>
+        </div>
+      </aside>
+    `;
+
+    // related
+    const related = document.createElement("section");
+    related.className = "glass relatedWrap";
+    related.innerHTML = `
+      <div class="sectionTitle">Похожие товары</div>
+      <div class="relatedGrid" id="relatedGrid"></div>
+    `;
+
+    root.appendChild(header);
+    root.appendChild(layout);
+    root.appendChild(related);
+
+    mountView(root);
+
+    // wire
+    document.getElementById("backBtn").onclick = () => history.back();
+    document.getElementById("openCart2").onclick = openDrawer;
+
+    // specs
+    const elSpecRow = document.getElementById("specRow");
+    (p.specs || []).forEach(s=>{
+      const sp = document.createElement("span");
+      sp.className = "specPill";
+      sp.textContent = s;
+      elSpecRow.appendChild(sp);
+    });
+
+    // add buttons
+    const doAdd = () => {
+      if(!p.stock) return toast("Сейчас нет в наличии 😢");
+      state.cart.set(p.id, (state.cart.get(p.id)||0) + 1);
+      saveCart();
+      renderCartButton();
+      toast("Добавлено: " + p.name);
+    };
+    document.getElementById("addBtn").onclick = doAdd;
+    document.getElementById("buyQuick").onclick = () => { doAdd(); openDrawer(); };
+
+    document.getElementById("copyLink").onclick = async () => {
+      try{
+        await navigator.clipboard.writeText(location.href);
+        toast("Ссылка скопирована ✅");
+      }catch(e){
+        toast("Не получилось скопировать (браузер запретил)");
+      }
+    };
+
+    // render related
+    const rel = PRODUCTS
+      .filter(x => x.id !== p.id)
+      .filter(x => x.cat === p.cat)
+      .slice(0, 3);
+
+    const fallback = PRODUCTS.filter(x => x.id !== p.id).sort((a,b)=>b.popular-a.popular).slice(0,3);
+    const relList = rel.length ? rel : fallback;
+
+    const elRelated = document.getElementById("relatedGrid");
+    relList.forEach((x, idx)=>{
+      const card = document.createElement("article");
+      card.className = "card";
+      card.style.animationDelay = Math.min(120, idx*20) + "ms";
+      card.innerHTML = `
+        <div class="thumb"><div class="shine"></div><div class="icon">${x.icon || "📦"}</div></div>
+        <div class="badges">
+          <span class="badge"><span class="dot ${x.stock ? "ok":"no"}"></span>${x.cat}</span>
+          <span class="badge">⭐ ${x.popular}%</span>
+        </div>
+        <div class="name">${x.name}</div>
+        <div class="desc">${x.desc}</div>
+        <div class="cardBottom">
+          <div>
+            <div class="price">${money(x.price)} €</div>
+            <div class="mini">${x.stock ? "В наличии" : "Нет в наличии"}</div>
+          </div>
+          <div class="row" style="gap:8px;">
+            <button class="btn">Смотреть</button>
+            <button class="btn primary" ${x.stock ? "" : "disabled"} style="${x.stock ? "" : "opacity:.55;cursor:not-allowed;"}">В корзину</button>
+          </div>
+        </div>
+      `;
+
+      const btns = card.querySelectorAll("button");
+      btns[0].onclick = (e)=>{ e.stopPropagation(); // flight capture
+        const r = card.getBoundingClientRect();
+        state.lastCardRect = r;
+        state.lastCardHTML = card.innerHTML;
+        location.hash = "product=" + x.id;
+      };
+      btns[1].onclick = (e)=>{ e.stopPropagation();
+        if(!x.stock) return;
+        state.cart.set(x.id, (state.cart.get(x.id)||0) + 1);
+        saveCart();
+        renderCartButton();
+        toast("Добавлено: " + x.name);
+      };
+
+      card.onclick = () => {
+        const r = card.getBoundingClientRect();
+        state.lastCardRect = r;
+        state.lastCardHTML = card.innerHTML;
+        location.hash = "product=" + x.id;
+      };
+
+      elRelated.appendChild(card);
+    });
+
+    // after view is mounted, run “card flight” into bigMedia
+    // measure target rect
+    requestAnimationFrame(()=>{
+      const target = document.getElementById("bigMedia");
+      if(target){
+        const tr = target.getBoundingClientRect();
+        animateCardFlightTo(tr);
+      }
+    });
+
+    // scroll to top for nice feel
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ===== router render =====
+  function renderRoute(){
+    const r = parseRoute();
+    if(r.name === "product") productView(r.id);
+    else catalogView();
+  }
+
+  // ===== events =====
+  elQ.addEventListener("input", (e)=>{ state.q = e.target.value; if(parseRoute().name==="catalog") renderRoute(); });
+
+  elOpenCart.onclick = openDrawer;
+  elCloseCart.onclick = closeDrawer;
+  elBackdrop.onclick = closeDrawer;
+
+  elClearCart.onclick = () => {
+    state.cart.clear();
+    saveCart();
+    renderCart();
+    toast("Корзина очищена");
+  };
+
+  elCheckout.onclick = () => {
+    if(cartCount() === 0){ toast("Корзина пустая 🙂"); return; }
+    toast("Демо-заказ оформлен! (учительница: 😳)");
+    closeDrawer();
+  };
+
+  window.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeDrawer();
+  });
+
+  window.addEventListener("hashchange", renderRoute);
+
+  // ===== init =====
+  loadCart();
+  renderCartButton();
+
+  // default route
+  if(!location.hash) location.hash = "catalog";
+  renderRoute();
+</script>
+</body>
+</html>
